@@ -2,8 +2,8 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { FbCreateResponse, Post } from './interfaces';
-import { environment } from '../../../../environments/environment.prod';
+import { FbCreateResponse, Post } from '../admin/shared/interfaces';
+import { environment } from '../../../environments/environment.prod';
 
 @Injectable({
   providedIn: 'root',

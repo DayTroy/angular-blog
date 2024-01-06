@@ -7,7 +7,7 @@ import { catchError, tap } from 'rxjs/operators';
 import { environment } from '../../../../../environments/environment';
 import { FbAuthResponse } from '../../../../../environments/interface';
 
-@Injectable()
+@Injectable({providedIn: 'root'})
 export class AuthService {
   constructor(private http: HttpClient) {}
 
@@ -54,7 +54,7 @@ export class AuthService {
         break;
       case 'INVALID_PASSWORD':
         this.error$.next('Неверный пароль');
-        break;
+        break;  
       case 'EMAIL_NOT_FOUND':
         this.error$.next('Такого email нет');
         break;
