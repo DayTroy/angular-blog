@@ -1,5 +1,5 @@
 import { AuthService } from './../shared/services/auth.service';
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { User } from '../shared/interfaces';
 import { Router } from '@angular/router';
@@ -19,7 +19,7 @@ export class LoginPageComponent {
   });
   submitted = false
   constructor(
-    private auth: AuthService,
+    public auth: AuthService,
     private router: Router
   ) {}  
   submit() {
@@ -32,6 +32,8 @@ export class LoginPageComponent {
     this.auth.login(user).subscribe(() => {
       this.form.reset()
       this.router.navigate(['/admin', 'dashboard'])
+      this.submitted = false
+    }, () => {
       this.submitted = false
     })
   }

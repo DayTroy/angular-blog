@@ -1,8 +1,8 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { User } from '../interfaces';
-import { Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { Observable, Subject, throwError } from 'rxjs';
+import { catchError, tap } from 'rxjs/operators';
 
 import { environment } from '../../../../../environments/environment';
 import { FbAuthResponse } from '../../../../../environments/interface';
@@ -11,51 +11,70 @@ import { FbAuthResponse } from '../../../../../environments/interface';
 export class AuthService {
   constructor(private http: HttpClient) {}
 
+  public error$: Subject<string> = new Subject<string>();
+
   get token(): string | null {
     const expDateString = localStorage.getItem('fb-token-exp');
-  
-    if (!expDateString) {
-      // Handle the case where the expiration date is not available.
-      // You might want to return null or throw an error, depending on your requirements.
-      return null;
-    }
-  
+
+    if (!expDateString) return null;
+
     const expDate = new Date(expDateString);
-  
+
     if (new Date() > expDate) {
       this.logout();
       return null;
     }
-  
-    return '';
+
+    return localStorage.getItem('fb-token');
   }
-  
 
   login(user: User): Observable<any> {
     user.returnSecureToken = true;
-  
-    return this.http.post<FbAuthResponse | null>(
-      `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${environment.apiKey}`,
-      user
-    ).pipe(
-      // Specify the type for tap
-      tap(this.setToken)
-    );
+
+    return this.http
+      .post<FbAuthResponse | null>(
+        `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${environment.apiKey}`,
+        user
+      )
+      .pipe(tap(this.setToken), catchError(this.handleError.bind(this)));
   }
   logout() {
-    this.setToken(null)
+    this.setToken(null);
   }
   isAuthenticated(): boolean {
     return !!this.token;
   }
 
+  private handleError(error: HttpErrorResponse) {
+    const { message } = error.error.error;
+    console.log(message);
+    switch (message) {
+      case 'INVALID_EMAIL':
+        this.error$.next('Неверный email');
+        break;
+      case 'INVALID_PASSWORD':
+        this.error$.next('Неверный пароль');
+        break;
+      case 'EMAIL_NOT_FOUND':
+        this.error$.next('Такого email нет');
+        break;
+      default:
+        this.error$.next('Произошла ошибка');
+        break;
+    }
+
+    return throwError(error);
+  }
+
   private setToken(response: FbAuthResponse | null) {
     if (response) {
-      const expDate = new Date(new Date().getTime() + +response.expiresIn * 1000)
-      localStorage.setItem('fb-token', response.idToken)
-      localStorage.setItem('fb-token-exp', expDate.toString())
+      const expDate = new Date(
+        new Date().getTime() + +response.expiresIn * 1000
+      );
+      localStorage.setItem('fb-token', response.idToken);
+      localStorage.setItem('fb-token-exp', expDate.toString());
     } else {
-      localStorage.clear()
+      localStorage.clear();
     }
   }
 }
