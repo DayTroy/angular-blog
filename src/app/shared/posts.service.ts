@@ -19,6 +19,8 @@ export class PostsService {
     );
   }
 
+  
+
   getAll(): Observable<Post[]> {
     return this.http.get(`${environment.fbDbUrl}/posts.json`).pipe(
       map((response: { [key: string]: any }) => {
@@ -41,5 +43,13 @@ export class PostsService {
 
   remove(id: string | null | undefined): Observable<void> {
     return this.http.delete<void>(`${environment.fbDbUrl}/posts/${id}.json`);
+  }
+
+  update(post: Post): Observable<Post> {
+    return this.http.patch<any>(`${environment.fbDbUrl}/posts/${post.id}.json`, post).pipe(
+      map((response: FbCreateResponse) => {
+        return { ...post, id: response.name, date: new Date(post.date) };
+      })
+    );
   }
 }
