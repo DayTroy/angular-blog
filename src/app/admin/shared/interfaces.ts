@@ -1,14 +1,14 @@
 export interface User {
-    email: string | null | undefined
-    password: string | null | undefined
+    email: string
+    password: string
     returnSecureToken?: boolean
 }
 
 export interface Post {
-    id?: string | null | undefined;
-    title: string | null | undefined;
-    text: string | null | undefined;
-    author: string | null | undefined;
+    id?: string;
+    title: string;
+    text: string;
+    author: string;
     date: Date;
 }
 
