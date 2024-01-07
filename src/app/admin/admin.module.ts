@@ -17,6 +17,7 @@ import { SearchPipe } from './shared/search.pipe';
     LoginPageComponent,
     DashboardPageComponent,
     CreatePageComponent,
+    EditPageComponent,
     SearchPipe
   ],
   imports: [
